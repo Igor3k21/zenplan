@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext'
 import type { Task } from '../types'
 
 export default function Tasks() {
-  const { tasks, categories, addTask, toggleTask } = useApp()
+  const { tasks, categories, addTask, toggleTask, deleteTask } = useApp()
   const [showForm, setShowForm] = useState(false)
   const [title, setTitle] = useState('')
   const [categoryId, setCategoryId] = useState('')
@@ -27,33 +27,33 @@ export default function Tasks() {
 
   return (
     <div className="p-5 max-w-lg mx-auto">
-      <div className="flex items-center justify-between mt-4 mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Tarefas</h1>
+      <div className="flex items-center justify-between mt-4 mb-2">
+        <h1 className="text-xl font-bold hud-title">TAREFAS</h1>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="text-white rounded-2xl w-10 h-10 flex items-center justify-center text-xl shadow-md transition-transform active:scale-95"
-          style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)' }}
+          className="hud-button w-10 h-10 flex items-center justify-center text-xl rounded-xl"
         >
           {showForm ? '×' : '+'}
         </button>
       </div>
+      <div className="hud-line mb-4" />
 
       {showForm && (
-        <div className="bg-white rounded-3xl p-5 mb-5 shadow-sm">
-          <h2 className="font-semibold text-gray-700 mb-4">Nova tarefa</h2>
+        <div className="hud-card p-5 mb-4">
+          <p className="text-xs font-semibold mb-4" style={{ color: '#00e5ff', letterSpacing: '1px' }}>NOVA TAREFA</p>
 
           <input
             type="text"
             placeholder="Nome da tarefa"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="w-full border border-gray-100 bg-gray-50 rounded-2xl p-3 mb-3 text-sm outline-none focus:border-indigo-300"
+            className="hud-input mb-3"
           />
 
           <select
             value={categoryId}
             onChange={e => setCategoryId(e.target.value)}
-            className="w-full border border-gray-100 bg-gray-50 rounded-2xl p-3 mb-4 text-sm outline-none focus:border-indigo-300"
+            className="hud-input mb-4"
           >
             <option value="">Selecione uma categoria</option>
             {categories.map(c => (
@@ -61,27 +61,23 @@ export default function Tasks() {
             ))}
           </select>
 
-          <button
-            onClick={handleAdd}
-            className="w-full text-white rounded-2xl p-3 font-semibold shadow-sm transition-transform active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)' }}
-          >
-            Salvar tarefa
+          <button onClick={handleAdd} className="hud-button w-full p-3">
+            SALVAR TAREFA
           </button>
         </div>
       )}
 
       {tasks.length === 0 && (
-        <div className="text-center text-gray-400 mt-16">
-          <p className="text-5xl mb-3">✅</p>
-          <p className="font-medium">Nenhuma tarefa ainda</p>
-          <p className="text-sm mt-1">Toque no + para adicionar</p>
+        <div className="hud-card p-8 text-center mt-4">
+          <p className="text-4xl mb-3">✅</p>
+          <p className="text-xs" style={{ color: '#c7f7ff' }}>Nenhuma tarefa ainda</p>
+          <p className="text-xs mt-1" style={{ color: '#00e5ff' }}>Toque no + para adicionar</p>
         </div>
       )}
 
       {pending.length > 0 && (
         <div className="mb-5">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Pendentes</p>
+          <p className="text-xs font-semibold mb-3" style={{ color: '#00e5ff', letterSpacing: '2px' }}>PENDENTES</p>
           {categories.map(category => {
             const categoryTasks = pending.filter(t => t.categoryId === category.id)
             if (categoryTasks.length === 0) return null
@@ -89,18 +85,32 @@ export default function Tasks() {
               <div key={category.id} className="mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-base">{category.icon}</span>
-                  <p className="text-sm font-semibold text-gray-600">{category.name}</p>
+                  <p className="text-xs font-semibold" style={{ color: '#c7f7ff' }}>{category.name}</p>
                 </div>
                 {categoryTasks.map(task => (
                   <div
                     key={task.id}
-                    onClick={() => toggleTask(task.id)}
-                    className="bg-white rounded-2xl p-4 mb-2 flex items-center gap-3 cursor-pointer shadow-sm active:scale-95 transition-transform"
+                    className="hud-card p-4 mb-2 flex items-center gap-3"
                   >
-                    <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                      style={{ borderColor: category.color }}>
-                    </div>
-                    <p className="text-sm text-gray-700 font-medium">{task.title}</p>
+                    <div
+                      onClick={() => toggleTask(task.id)}
+                      className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 cursor-pointer"
+                      style={{ borderColor: '#00e5ff' }}
+                    />
+                    <p
+                      onClick={() => toggleTask(task.id)}
+                      className="text-sm flex-1 cursor-pointer"
+                      style={{ color: '#c7f7ff' }}
+                    >
+                      {task.title}
+                    </p>
+                    <button
+                      onClick={() => deleteTask(task.id)}
+                      className="text-xs px-2 py-1 rounded-lg transition-all hover:scale-105"
+                      style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.08)' }}
+                    >
+                      ✕
+                    </button>
                   </div>
                 ))}
               </div>
@@ -111,20 +121,33 @@ export default function Tasks() {
 
       {done.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Concluídas</p>
+          <p className="text-xs font-semibold mb-3" style={{ color: '#3b82f6', letterSpacing: '2px' }}>CONCLUÍDAS</p>
           {done.map(task => {
             const category = categories.find(c => c.id === task.categoryId)
             return (
-              <div
-                key={task.id}
-                onClick={() => toggleTask(task.id)}
-                className="bg-white rounded-2xl p-4 mb-2 flex items-center gap-3 cursor-pointer opacity-50 shadow-sm"
-              >
-                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: category?.color }}>
-                  <span className="text-white text-xs">✓</span>
+              <div key={task.id} className="hud-card p-4 mb-2 flex items-center gap-3 opacity-50">
+                <div
+                  onClick={() => toggleTask(task.id)}
+                  className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer"
+                  style={{ background: '#00e5ff', boxShadow: '0 0 6px #00e5ff' }}
+                >
+                  <span className="text-xs text-black font-bold">✓</span>
                 </div>
-                <p className="text-sm text-gray-400 line-through">{task.title}</p>
+                <p
+                  onClick={() => toggleTask(task.id)}
+                  className="text-sm flex-1 line-through cursor-pointer"
+                  style={{ color: '#c7f7ff' }}
+                >
+                  {task.title}
+                </p>
+                <span className="text-xs" style={{ color: '#00e5ff' }}>{category?.icon}</span>
+                <button
+                  onClick={() => deleteTask(task.id)}
+                  className="text-xs px-2 py-1 rounded-lg transition-all hover:scale-105"
+                  style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.08)' }}
+                >
+                  ✕
+                </button>
               </div>
             )
           })}

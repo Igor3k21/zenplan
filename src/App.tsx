@@ -7,7 +7,7 @@ import Categories from './pages/Categories'
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    <div className="min-h-screen pb-20">
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/schedule" element={<Schedule />} />

@@ -10,6 +10,9 @@ type AppContextType = {
   addEvent: (event: Event) => void
   addTask: (task: Task) => void
   toggleTask: (id: string) => void
+  deleteCategory: (id: string) => void
+  deleteEvent: (id: string) => void
+  deleteTask: (id: string) => void
 }
 
 const AppContext = createContext<AppContextType>({} as AppContextType)
@@ -34,36 +37,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : []
   })
 
-  useEffect(() => {
-    localStorage.setItem('categories', JSON.stringify(categories))
-  }, [categories])
+  useEffect(() => { localStorage.setItem('categories', JSON.stringify(categories)) }, [categories])
+  useEffect(() => { localStorage.setItem('events', JSON.stringify(events)) }, [events])
+  useEffect(() => { localStorage.setItem('tasks', JSON.stringify(tasks)) }, [tasks])
 
-  useEffect(() => {
-    localStorage.setItem('events', JSON.stringify(events))
-  }, [events])
-
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks))
-  }, [tasks])
-
-  function addCategory(category: Category) {
-    setCategories(prev => [...prev, category])
-  }
-
-  function addEvent(event: Event) {
-    setEvents(prev => [...prev, event])
-  }
-
-  function addTask(task: Task) {
-    setTasks(prev => [...prev, task])
-  }
-
-  function toggleTask(id: string) {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t))
-  }
+  function addCategory(category: Category) { setCategories(prev => [...prev, category]) }
+  function addEvent(event: Event) { setEvents(prev => [...prev, event]) }
+  function addTask(task: Task) { setTasks(prev => [...prev, task]) }
+  function toggleTask(id: string) { setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t)) }
+  function deleteCategory(id: string) { setCategories(prev => prev.filter(c => c.id !== id)) }
+  function deleteEvent(id: string) { setEvents(prev => prev.filter(e => e.id !== id)) }
+  function deleteTask(id: string) { setTasks(prev => prev.filter(t => t.id !== id)) }
 
   return (
-    <AppContext.Provider value={{ categories, events, tasks, addCategory, addEvent, addTask, toggleTask }}>
+    <AppContext.Provider value={{ categories, events, tasks, addCategory, addEvent, addTask, toggleTask, deleteCategory, deleteEvent, deleteTask }}>
       {children}
     </AppContext.Provider>
   )
